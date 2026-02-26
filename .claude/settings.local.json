@@ -77,5 +77,8 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "gitnexus"
-  ]
+  ],
+  "enabledPlugins": {
+    "beagle-ai@existential-birds": true
+  }
 }
