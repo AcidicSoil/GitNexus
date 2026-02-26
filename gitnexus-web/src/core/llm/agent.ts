@@ -1,6 +1,6 @@
 /**
  * Graph RAG Agent Factory
- * 
+ *
  * Creates a LangChain agent configured for code graph analysis.
  * Supports Azure OpenAI and Google Gemini providers.
  */
@@ -13,24 +13,24 @@ import { ChatAnthropic } from '@langchain/anthropic';
 import { ChatOllama } from '@langchain/ollama';
 import type { BaseChatModel } from '@langchain/core/language_models/chat_models';
 import { createGraphRAGTools } from './tools';
-import type { 
-  ProviderConfig, 
+import type {
+  ProviderConfig,
   OpenAIConfig,
-  AzureOpenAIConfig, 
+  AzureOpenAIConfig,
   GeminiConfig,
   AnthropicConfig,
   OllamaConfig,
   OpenRouterConfig,
   AgentStreamChunk,
 } from './types';
-import { 
+import {
   type CodebaseContext,
   buildDynamicSystemPrompt,
 } from './context-builder';
 
 /**
  * System prompt for the Graph RAG agent
- * 
+ *
  * Design principles (based on Aider/Cline research):
  * - Short, punchy directives > long explanations
  * - No template-inducing examples
@@ -40,7 +40,7 @@ import {
  */
 /**
  * Base system prompt - exported so it can be used with dynamic context injection
- * 
+ *
  * Structure (optimized for instruction following):
  * 1. Identity + GROUNDING mandate (most important)
  * 2. Core protocol (how to work)
@@ -128,11 +128,11 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
   switch (config.provider) {
     case 'openai': {
       const openaiConfig = config as OpenAIConfig;
-      
+
       if (!openaiConfig.apiKey || openaiConfig.apiKey.trim() === '') {
         throw new Error('OpenAI API key is required but was not provided');
       }
-      
+
       return new ChatOpenAI({
         apiKey: openaiConfig.apiKey,
         modelName: openaiConfig.model,
@@ -145,7 +145,7 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
         streaming: true,
       });
     }
-    
+
     case 'azure-openai': {
       const azureConfig = config as AzureOpenAIConfig;
       return new AzureChatOpenAI({
@@ -157,7 +157,7 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
         streaming: true,
       });
     }
-    
+
     case 'gemini': {
       const geminiConfig = config as GeminiConfig;
       return new ChatGoogleGenerativeAI({
@@ -168,7 +168,7 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
         streaming: true,
       });
     }
-    
+
     case 'anthropic': {
       const anthropicConfig = config as AnthropicConfig;
       return new ChatAnthropic({
@@ -179,7 +179,7 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
         streaming: true,
       });
     }
-    
+
     case 'ollama': {
       const ollamaConfig = config as OllamaConfig;
       return new ChatOllama({
@@ -194,10 +194,10 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
         numCtx: 32768,
       });
     }
-    
+
     case 'openrouter': {
       const openRouterConfig = config as OpenRouterConfig;
-      
+
       // Debug logging
       if (import.meta.env.DEV) {
         console.log('🌐 OpenRouter config:', {
@@ -207,11 +207,11 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
           baseUrl: openRouterConfig.baseUrl,
         });
       }
-      
+
       if (!openRouterConfig.apiKey || openRouterConfig.apiKey.trim() === '') {
         throw new Error('OpenRouter API key is required but was not provided');
       }
-      
+
       return new ChatOpenAI({
         openAIApiKey: openRouterConfig.apiKey,
         apiKey: openRouterConfig.apiKey, // Fallback for some versions
@@ -225,7 +225,7 @@ export const createChatModel = (config: ProviderConfig): BaseChatModel => {
         streaming: true,
       });
     }
-    
+
     default:
       throw new Error(`Unsupported provider: ${(config as any).provider}`);
   }
@@ -275,23 +275,23 @@ export const createGraphRAGAgent = (
     isBM25Ready,
     fileContents
   );
-  
+
   // Use dynamic prompt if context is provided, otherwise use base prompt
-  const systemPrompt = codebaseContext 
+  const systemPrompt = codebaseContext
     ? buildDynamicSystemPrompt(BASE_SYSTEM_PROMPT, codebaseContext)
     : BASE_SYSTEM_PROMPT;
-  
+
   // Log the full prompt for debugging
   if (import.meta.env.DEV) {
     console.log('🤖 AGENT SYSTEM PROMPT:\n', systemPrompt);
   }
-  
+
   const agent = createReactAgent({
     llm: model as any,
     tools: tools as any,
     messageModifier: new SystemMessage(systemPrompt) as any,
   });
-  
+
   return agent;
 };
 
@@ -308,7 +308,7 @@ export interface AgentMessage {
  * Uses BOTH streamModes for best of both worlds:
  * - 'values' for state transitions (tool calls, results) in proper order
  * - 'messages' for token-by-token text streaming
- * 
+ *
  * This preserves the natural progression: reasoning → tool → reasoning → tool → answer
  */
 export async function* streamAgentResponse(
@@ -320,17 +320,17 @@ export async function* streamAgentResponse(
       role: m.role,
       content: m.content,
     }));
-    
+
     // Use BOTH modes: 'values' for structure, 'messages' for token streaming
     const stream = await agent.stream(
       { messages: formattedMessages },
       {
         streamMode: ['values', 'messages'] as any,
         // Allow longer tool/reasoning loops (more Cursor-like persistence)
-        recursionLimit: 50,
+        recursionLimit: 75,
       } as any
     );
-    
+
     // Track what we've yielded to avoid duplicates
     const yieldedToolCalls = new Set<string>();
     const yieldedToolResults = new Set<string>();
@@ -341,13 +341,13 @@ export async function* streamAgentResponse(
     // Anything before the first tool call should be treated as "reasoning/narration"
     // so the UI can show the Cursor-like loop: plan → tool → update → tool → answer.
     let hasSeenToolCallThisTurn = false;
-    
+
     for await (const event of stream) {
       // Events come as [streamMode, data] tuples when using multiple modes
       // or just data when using single mode
       let mode: string;
       let data: any;
-      
+
       if (Array.isArray(event) && event.length === 2 && typeof event[0] === 'string') {
         [mode, data] = event;
       } else if (Array.isArray(event) && event[0]?._getType) {
@@ -359,7 +359,7 @@ export async function* streamAgentResponse(
         mode = 'values';
         data = event;
       }
-      
+
       // DEBUG: Enhanced logging
       if (import.meta.env.DEV) {
         const msgType = mode === 'messages' && data?.[0]?._getType?.() || 'n/a';
@@ -371,14 +371,14 @@ export async function* streamAgentResponse(
       if (mode === 'messages') {
         const [msg] = Array.isArray(data) ? data : [data];
         if (!msg) continue;
-        
+
         const msgType = msg._getType?.() || msg.type || msg.constructor?.name || 'unknown';
-        
+
         // AIMessageChunk - streaming text tokens
         if (msgType === 'ai' || msgType === 'AIMessage' || msgType === 'AIMessageChunk') {
           const rawContent = msg.content;
           const toolCalls = msg.tool_calls || [];
-          
+
           // Handle content that can be string or array of content blocks
           let content: string = '';
           if (typeof rawContent === 'string') {
@@ -390,7 +390,7 @@ export async function* streamAgentResponse(
               .map((block: any) => typeof block === 'string' ? block : block.text || '')
               .join('');
           }
-          
+
           // If chunk has content, stream it
           if (content && content.length > 0) {
             // Determine if this is reasoning/narration vs final answer content.
@@ -406,7 +406,7 @@ export async function* streamAgentResponse(
               [isReasoning ? 'reasoning' : 'content']: content,
             };
           }
-          
+
           // Track tool calls from message chunks
           if (toolCalls.length > 0) {
             hasSeenToolCallThisTurn = true;
@@ -428,7 +428,7 @@ export async function* streamAgentResponse(
             }
           }
         }
-        
+
         // ToolMessage in messages mode
         if (msgType === 'tool' || msgType === 'ToolMessage') {
           const toolCallId = msg.tool_call_id || '';
@@ -450,16 +450,16 @@ export async function* streamAgentResponse(
           }
         }
       }
-      
+
       // Handle 'values' mode - state snapshots for structure
       if (mode === 'values' && data?.messages) {
         const stepMessages = data.messages || [];
-        
+
         // Process new messages for tool calls/results we might have missed
         for (let i = lastProcessedMsgCount; i < stepMessages.length; i++) {
           const msg = stepMessages[i];
           const msgType = msg._getType?.() || msg.type || 'unknown';
-          
+
           // Catch tool calls from values mode (backup)
           if ((msgType === 'ai' || msgType === 'AIMessage') && !yieldedToolCalls.size) {
             const toolCalls = msg.tool_calls || [];
@@ -480,7 +480,7 @@ export async function* streamAgentResponse(
               }
             }
           }
-          
+
           // Catch tool results from values mode (backup)
           if (msgType === 'tool' || msgType === 'ToolMessage') {
             const toolCallId = msg.tool_call_id || '';
@@ -501,11 +501,11 @@ export async function* streamAgentResponse(
             }
           }
         }
-        
+
         lastProcessedMsgCount = stepMessages.length;
       }
     }
-    
+
     // DEBUG: Stream completed normally
     if (import.meta.env.DEV) {
       console.log('✅ Stream completed normally, yielding done');
@@ -517,8 +517,8 @@ export async function* streamAgentResponse(
     if (import.meta.env.DEV) {
       console.error('❌ Stream error:', message, error);
     }
-    yield { 
-      type: 'error', 
+    yield {
+      type: 'error',
       error: message,
     };
   }
@@ -536,9 +536,9 @@ export const invokeAgent = async (
     role: m.role,
     content: m.content,
   }));
-  
+
   const result = await agent.invoke({ messages: formattedMessages });
-  
+
   // result.messages is the full conversation state
   const lastMessage = result.messages[result.messages.length - 1];
   return lastMessage?.content?.toString() ?? 'No response generated.';
