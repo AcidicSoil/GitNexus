@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772063557177,
+  "lastScanned": 1772150251471,
   "projectRoot": "/home/user/projects/temp/ai-apps/GitNexus",
   "techStack": {
     "languages": [],
@@ -24,7 +24,10 @@
   "structure": {
     "isMonorepo": false,
     "workspaces": [],
-    "mainDirectories": [],
+    "mainDirectories": [
+      "docs",
+      "scripts"
+    ],
     "gitBranches": {
       "defaultBranch": "main",
       "branchingStrategy": null
@@ -32,11 +35,30 @@
   },
   "customNotes": [],
   "directoryMap": {
+    "arscontexta": {
+      "path": "arscontexta",
+      "purpose": null,
+      "fileCount": 5,
+      "lastAccessed": 1772150251459,
+      "keyFiles": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "LICENSE",
+        "README.md"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1772150251461,
+      "keyFiles": []
+    },
     "eval": {
       "path": "eval",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1772063557170,
+      "lastAccessed": 1772150251461,
       "keyFiles": [
         "README.md",
         "__init__.py",
@@ -48,7 +70,7 @@
       "path": "gitnexus",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1772063557172,
+      "lastAccessed": 1772150251461,
       "keyFiles": [
         "README.md",
         "package-lock.json",
@@ -60,28 +82,28 @@
       "path": "gitnexus-claude-plugin",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772063557173,
+      "lastAccessed": 1772150251461,
       "keyFiles": []
     },
     "gitnexus-cursor-integration": {
       "path": "gitnexus-cursor-integration",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772063557173,
+      "lastAccessed": 1772150251462,
       "keyFiles": []
     },
     "gitnexus-test-setup": {
       "path": "gitnexus-test-setup",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772063557173,
+      "lastAccessed": 1772150251462,
       "keyFiles": []
     },
     "gitnexus-web": {
       "path": "gitnexus-web",
       "purpose": null,
       "fileCount": 11,
-      "lastAccessed": 1772063557173,
+      "lastAccessed": 1772150251462,
       "keyFiles": [
         "index.html",
         "package-lock.json",
@@ -90,25 +112,51 @@
         "tsconfig.app.tsbuildinfo"
       ]
     },
+    "hypergraph": {
+      "path": "hypergraph",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1772150251463,
+      "keyFiles": [
+        "README.md",
+        "eslint.config.mjs",
+        "next.config.ts",
+        "package-lock.json",
+        "package.json"
+      ]
+    },
+    "scripts": {
+      "path": "scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 6,
+      "lastAccessed": 1772150251463,
+      "keyFiles": [
+        "bmad-wizard.py",
+        "deploy-to-project.sh",
+        "error-handler.py",
+        "health-check.sh",
+        "monitor-skills.py"
+      ]
+    },
     "gitnexus/src": {
       "path": "gitnexus/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1772063557174,
+      "lastAccessed": 1772150251464,
       "keyFiles": []
     },
     "gitnexus/vendor": {
       "path": "gitnexus/vendor",
       "purpose": "Third-party code",
       "fileCount": 0,
-      "lastAccessed": 1772063557174,
+      "lastAccessed": 1772150251464,
       "keyFiles": []
     },
     "gitnexus-web/api": {
       "path": "gitnexus-web/api",
       "purpose": "API routes",
       "fileCount": 1,
-      "lastAccessed": 1772063557175,
+      "lastAccessed": 1772150251464,
       "keyFiles": [
         "proxy.ts"
       ]
@@ -117,7 +165,7 @@
       "path": "gitnexus-web/dist",
       "purpose": "Distribution/build output",
       "fileCount": 1,
-      "lastAccessed": 1772063557175,
+      "lastAccessed": 1772150251465,
       "keyFiles": [
         "index.html"
       ]
@@ -126,28 +174,170 @@
       "path": "gitnexus-web/node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1772063557176,
+      "lastAccessed": 1772150251467,
       "keyFiles": []
     },
     "gitnexus-web/public": {
       "path": "gitnexus-web/public",
       "purpose": "Public files",
       "fileCount": 0,
-      "lastAccessed": 1772063557176,
+      "lastAccessed": 1772150251468,
       "keyFiles": []
     },
     "gitnexus-web/src": {
       "path": "gitnexus-web/src",
       "purpose": "Source code",
       "fileCount": 4,
-      "lastAccessed": 1772063557177,
+      "lastAccessed": 1772150251468,
       "keyFiles": [
         "App.tsx",
         "index.css",
         "main.tsx"
       ]
+    },
+    "hypergraph/app": {
+      "path": "hypergraph/app",
+      "purpose": "Application code",
+      "fileCount": 5,
+      "lastAccessed": 1772150251469,
+      "keyFiles": [
+        "favicon.ico",
+        "globals.css",
+        "icon.svg"
+      ]
+    },
+    "hypergraph/components": {
+      "path": "hypergraph/components",
+      "purpose": "UI components",
+      "fileCount": 4,
+      "lastAccessed": 1772150251470,
+      "keyFiles": [
+        "FileTreePanel.tsx",
+        "GraphView.tsx",
+        "NodePreview.tsx"
+      ]
+    },
+    "hypergraph/lib": {
+      "path": "hypergraph/lib",
+      "purpose": "Library code",
+      "fileCount": 3,
+      "lastAccessed": 1772150251471,
+      "keyFiles": [
+        "generator.ts",
+        "hyperbrowser.ts",
+        "serper.ts"
+      ]
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "gitnexus-web/src/hooks/useAppState.tsx",
+      "accessCount": 27,
+      "lastAccessed": 1772159288679,
+      "type": "file"
+    },
+    {
+      "path": ".claude/tasks/task-001.md",
+      "accessCount": 22,
+      "lastAccessed": 1772160932462,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 17,
+      "lastAccessed": 1772160646065,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/src/components/RightPanel.tsx",
+      "accessCount": 15,
+      "lastAccessed": 1772159288676,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus/src/core/wiki/prompts.ts",
+      "accessCount": 11,
+      "lastAccessed": 1772159288600,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src",
+      "accessCount": 7,
+      "lastAccessed": 1772152994336,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/src/components/MarkdownRenderer.tsx",
+      "accessCount": 7,
+      "lastAccessed": 1772159288607,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/core/llm/types.ts",
+      "accessCount": 4,
+      "lastAccessed": 1772159288591,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/package.json",
+      "accessCount": 4,
+      "lastAccessed": 1772159391209,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/components/ProcessFlowModal.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1772155858608,
+      "type": "file"
+    },
+    {
+      "path": ".claude/skills/gitnexus/exploring/SKILL.md",
+      "accessCount": 3,
+      "lastAccessed": 1772156655190,
+      "type": "file"
+    },
+    {
+      "path": "docs/references/notion/gitnexus-codex-todo/README.md",
+      "accessCount": 3,
+      "lastAccessed": 1772160918469,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus/package.json",
+      "accessCount": 2,
+      "lastAccessed": 1772159248123,
+      "type": "file"
+    },
+    {
+      "path": ".claude/config.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1772151815985,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web",
+      "accessCount": 1,
+      "lastAccessed": 1772151988465,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus/src/core/wiki",
+      "accessCount": 1,
+      "lastAccessed": 1772156626741,
+      "type": "directory"
+    },
+    {
+      "path": "docs/references/notion/gitnexus-codex-todo/gitnexus-hypergraph.md",
+      "accessCount": 1,
+      "lastAccessed": 1772156672595,
+      "type": "file"
+    },
+    {
+      "path": "docs",
+      "accessCount": 1,
+      "lastAccessed": 1772160674065,
+      "type": "directory"
+    }
+  ],
   "userDirectives": []
 }

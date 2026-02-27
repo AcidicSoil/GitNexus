@@ -39,6 +39,9 @@ export const MODULE_SYSTEM_PROMPT = `You are a technical documentation writer. W
 Rules:
 - Reference actual function names, class names, and code patterns — do NOT invent APIs
 - Use the call graph and execution flow data for accuracy, but do NOT mechanically list every edge
+- Frame content with typed node schema language: MOC (entry-point map), Concept (architectural intent), Pattern (reusable cross-module approach), and Gotcha (failure mode/edge case)
+- Weave wikilinks into explanatory prose sentences (e.g. "The [Parser](parser.md) normalizes inputs before [Validator](validator.md) rejects malformed payloads"), not as bare link lists
+- Extract Gotchas from structural graph signals such as high fan-in/fan-out handoff points, cross-module process chains, and hotspot nodes that appear in many flows
 - Include Mermaid diagrams only when they genuinely help understanding. Keep them small (5-10 nodes max)
 - Structure the document however makes sense for this module — there is no mandatory format
 - Write for a developer who needs to understand and contribute to this code`;
@@ -58,15 +61,17 @@ Execution flows: {{PROCESSES}}
 
 ---
 
-Write comprehensive documentation for this module. Cover its purpose, how it works, its key components, and how it connects to the rest of the codebase. Use whatever structure best fits this module — you decide the sections and headings. Include a Mermaid diagram only if it genuinely clarifies the architecture.`;
+Write comprehensive documentation for this module. Cover its purpose, how it works, its key components, and how it connects to the rest of the codebase. Frame the writeup with typed node schema language where relevant (Concept, Pattern, Gotcha), and weave links to related pages directly into explanatory sentences rather than standalone link lists. Use whatever structure best fits this module — you decide the sections and headings. Include a Mermaid diagram only if it genuinely clarifies the architecture.`;
 
 // ─── Parent Module Prompt ─────────────────────────────────────────────
 
 export const PARENT_SYSTEM_PROMPT = `You are a technical documentation writer. Write a summary page for a module that contains sub-modules. Synthesize the children's documentation — do not re-read source code.
 
 Rules:
+- Treat this page as a local MOC (Map of Content) entry point for its cluster
 - Reference actual components from the child modules
 - Focus on how the sub-modules work together, not repeating their individual docs
+- Include 2-4 open questions that would guide deeper exploration or future hardening in this area
 - Keep it concise — the reader can click through to child pages for detail
 - Include a Mermaid diagram only if it genuinely clarifies how the sub-modules relate`;
 
@@ -79,7 +84,7 @@ Shared execution flows: {{CROSS_PROCESSES}}
 
 ---
 
-Write a concise overview of this module group. Explain its purpose, how the sub-modules fit together, and the key workflows that span them. Link to sub-module pages (e.g. \`[Sub-module Name](sub-module-slug.md)\`) rather than repeating their content. Use whatever structure fits best.`;
+Write a concise overview of this module group. Treat it as an MOC-style entry point: orient readers to the cluster, explain how the sub-modules fit together, and highlight key workflows that span them. Include a short open-questions section to guide deeper investigation. Link to sub-module pages (e.g. \`[Sub-module Name](sub-module-slug.md)\`) in explanatory prose rather than repeating their content or listing bare links. Use whatever structure fits best.`;
 
 // ─── Overview Prompt ──────────────────────────────────────────────────
 

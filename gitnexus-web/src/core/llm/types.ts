@@ -179,6 +179,19 @@ export interface ChatMessage {
 }
 
 /**
+ * Chat session persisted in local storage.
+ * Sessions are scoped by projectName.
+ */
+export interface ChatSession {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+  projectName: string;
+}
+
+/**
  * Tool call information for UI display
  */
 export interface ToolCallInfo {

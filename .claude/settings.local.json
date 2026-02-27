@@ -71,7 +71,19 @@
       "Bash(du:*)",
       "mcp__desktop-commander__list_directory",
       "Bash(python3 -c \":*)",
-      "mcp__gitnexus__detect_changes"
+      "mcp__gitnexus__detect_changes",
+      "Bash(mcp-cli read:*)",
+      "Bash(npm --prefix \"/home/user/projects/temp/ai-apps/GitNexus/gitnexus-web\" run build)",
+      "Bash(npm --prefix \"/home/user/projects/temp/ai-apps/GitNexus/gitnexus\" run build)",
+      "mcp__plugin_oh-my-claudecode_t__lsp_diagnostics",
+      "Bash(npm --prefix \"/home/user/projects/temp/ai-apps/GitNexus/gitnexus\" install)",
+      "Bash(git -C \"/home/user/projects/temp/ai-apps/GitNexus\" status:*)",
+      "Bash(git -C \"/home/user/projects/temp/ai-apps/GitNexus\" restore:*)",
+      "Bash(npm install:*)",
+      "mcp__plugin_oh-my-claudecode_t__notepad_write_working",
+      "Bash(git -C \"/home/user/projects/temp/ai-apps/GitNexus\" diff:*)",
+      "mcp__plugin_oh-my-claudecode_t__state_list_active",
+      "mcp__plugin_oh-my-claudecode_t__state_clear"
     ]
   },
   "enableAllProjectMcpServers": true,

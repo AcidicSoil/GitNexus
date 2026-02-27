@@ -189,7 +189,9 @@ export const ProcessFlowModal = ({ process, onClose, onFocusInGraph, isFullScree
     // Copy mermaid code to clipboard
     const handleCopyMermaid = useCallback(async () => {
         if (!process) return;
-        const mermaidCode = generateProcessMermaid(process);
+        const mermaidCode = (process as any).rawMermaid
+            ? (process as any).rawMermaid
+            : generateProcessMermaid(process);
         await navigator.clipboard.writeText(mermaidCode);
     }, [process]);
 

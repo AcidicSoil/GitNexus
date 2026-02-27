@@ -1,4 +1,5 @@
 import React from 'react';
+import { Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -29,6 +30,49 @@ interface MarkdownRendererProps {
     onLinkClick?: (href: string) => void;
     toolCalls?: any[]; // Keep flexible for now
 }
+
+const copyWithFallback = async (text: string): Promise<void> => {
+    if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'absolute';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+};
+
+const CopyButton: React.FC<{ value: string }> = ({ value }) => {
+    const [copied, setCopied] = React.useState(false);
+
+    const onCopy = React.useCallback(async () => {
+        try {
+            await copyWithFallback(value);
+            setCopied(true);
+            window.setTimeout(() => setCopied(false), 1400);
+        } catch {
+            setCopied(false);
+        }
+    }, [value]);
+
+    return (
+        <button
+            onClick={onCopy}
+            className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-1 text-[11px] rounded border border-border-subtle bg-surface/80 text-text-muted hover:text-text-primary hover:bg-hover transition-colors"
+            title={copied ? 'Copied' : 'Copy code'}
+            type="button"
+        >
+            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+            {copied ? 'Copied' : 'Copy'}
+        </button>
+    );
+};
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     content,
@@ -132,21 +176,24 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
             }
 
             return (
-                <SyntaxHighlighter
-                    style={customTheme}
-                    language={language}
-                    PreTag="div"
-                    customStyle={{
-                        margin: 0,
-                        padding: '14px 16px',
-                        borderRadius: '8px',
-                        fontSize: '13px',
-                        background: '#0a0a10',
-                        border: '1px solid #1e1e2a',
-                    }}
-                >
-                    {codeContent}
-                </SyntaxHighlighter>
+                <div className="relative group">
+                    <CopyButton value={codeContent} />
+                    <SyntaxHighlighter
+                        style={customTheme}
+                        language={language}
+                        PreTag="div"
+                        customStyle={{
+                            margin: 0,
+                            padding: '14px 16px',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            background: '#0a0a10',
+                            border: '1px solid #1e1e2a',
+                        }}
+                    >
+                        {codeContent}
+                    </SyntaxHighlighter>
+                </div>
             );
         },
         pre: ({ children }: any) => <>{children}</>,

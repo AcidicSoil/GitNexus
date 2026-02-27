@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback, useRef, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo, ReactNode } from 'react';
 import * as Comlink from 'comlink';
 import { KnowledgeGraph, GraphNode, NodeLabel } from '../core/graph/types';
 import { PipelineProgress, PipelineResult, deserializePipelineResult } from '../types/pipeline';
@@ -7,7 +7,7 @@ import { DEFAULT_VISIBLE_LABELS } from '../lib/constants';
 import type { IngestionWorkerApi } from '../workers/ingestion.worker';
 import type { FileEntry } from '../services/zip';
 import type { EmbeddingProgress, SemanticSearchResult } from '../core/embeddings/types';
-import type { LLMSettings, ProviderConfig, AgentStreamChunk, ChatMessage, ToolCallInfo, MessageStep } from '../core/llm/types';
+import type { LLMSettings, ProviderConfig, AgentStreamChunk, ChatMessage, ChatSession, ToolCallInfo, MessageStep } from '../core/llm/types';
 import { loadSettings, getActiveProviderConfig, saveSettings } from '../core/llm/settings-service';
 import type { AgentMessage } from '../core/llm/agent';
 import { DEFAULT_VISIBLE_EDGES, type EdgeType } from '../lib/constants';
@@ -142,6 +142,8 @@ interface AppState {
 
   // Chat state
   chatMessages: ChatMessage[];
+  chatSessions: ChatSession[];
+  activeChatId: string | null;
   isChatLoading: boolean;
   currentToolCalls: ToolCallInfo[];
 
@@ -151,6 +153,10 @@ interface AppState {
   sendChatMessage: (message: string) => Promise<void>;
   stopChatResponse: () => void;
   clearChat: () => void;
+  newChat: () => void;
+  loadChat: (chatId: string) => void;
+  deleteChat: (chatId: string) => void;
+  renameChat: (chatId: string, title: string) => void;
 
   // Code References Panel
   codeReferences: CodeReference[];
@@ -170,6 +176,36 @@ interface AppState {
 }
 
 const AppStateContext = createContext<AppState | null>(null);
+
+const CHAT_HISTORY_STORAGE_KEY = 'gitnexus.chatHistory';
+
+const makeChatTitle = (input: string): string => {
+  const trimmed = input.trim();
+  if (!trimmed) return 'New Chat';
+  return trimmed.length > 60 ? `${trimmed.slice(0, 57)}...` : trimmed;
+};
+
+const loadChatSessionsFromStorage = (): ChatSession[] => {
+  try {
+    const raw = localStorage.getItem(CHAT_HISTORY_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter((item) => item && typeof item === 'object')
+      .map((item) => ({
+        id: String(item.id ?? `chat-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`),
+        title: typeof item.title === 'string' ? item.title : 'New Chat',
+        messages: Array.isArray(item.messages) ? item.messages : [],
+        createdAt: typeof item.createdAt === 'number' ? item.createdAt : Date.now(),
+        updatedAt: typeof item.updatedAt === 'number' ? item.updatedAt : Date.now(),
+        projectName: typeof item.projectName === 'string' ? item.projectName : '',
+      }));
+  } catch {
+    return [];
+  }
+};
 
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // View state
@@ -276,6 +312,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
 
   // Project info
   const [projectName, setProjectName] = useState<string>('');
+  const scopedProjectName = useMemo(() => projectName || 'project', [projectName]);
 
   // Embedding state
   const [embeddingStatus, setEmbeddingStatus] = useState<EmbeddingStatus>('idle');
@@ -290,6 +327,11 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
 
   // Chat state
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>(() => {
+    if (typeof window === 'undefined') return [];
+    return loadChatSessionsFromStorage();
+  });
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [currentToolCalls, setCurrentToolCalls] = useState<ToolCallInfo[]>([]);
 
@@ -305,6 +347,67 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   const normalizePath = useCallback((p: string) => {
     return p.replace(/\\/g, '/').replace(/^\.?\//, '');
   }, []);
+
+  const persistChatSessions = useCallback((sessions: ChatSession[]) => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(CHAT_HISTORY_STORAGE_KEY, JSON.stringify(sessions));
+    } catch {
+      // no-op: storage may be unavailable/quota exceeded
+    }
+  }, []);
+
+  const scopedSessions = useMemo(
+    () => chatSessions
+      .filter((session) => session.projectName === scopedProjectName)
+      .sort((a, b) => b.updatedAt - a.updatedAt),
+    [chatSessions, scopedProjectName]
+  );
+
+  useEffect(() => {
+    persistChatSessions(chatSessions);
+  }, [chatSessions, persistChatSessions]);
+
+  useEffect(() => {
+    if (scopedSessions.length === 0) {
+      setActiveChatId(null);
+      setChatMessages([]);
+      return;
+    }
+
+    setActiveChatId((prev) => {
+      if (prev && scopedSessions.some((session) => session.id === prev)) {
+        return prev;
+      }
+      return scopedSessions[0].id;
+    });
+  }, [scopedSessions]);
+
+  useEffect(() => {
+    if (!activeChatId) return;
+    const activeSession = scopedSessions.find((session) => session.id === activeChatId);
+    if (!activeSession) return;
+    setChatMessages(activeSession.messages);
+  }, [activeChatId, scopedSessions]);
+
+  useEffect(() => {
+    if (!activeChatId) return;
+    setChatSessions((prev) => prev.map((session) => {
+      if (session.id !== activeChatId) return session;
+
+      const firstUserMessage = chatMessages.find((message) => message.role === 'user')?.content;
+      const nextTitle = session.title === 'New Chat' && firstUserMessage
+        ? makeChatTitle(firstUserMessage)
+        : session.title;
+
+      return {
+        ...session,
+        title: nextTitle,
+        messages: chatMessages,
+        updatedAt: Date.now(),
+      };
+    }));
+  }, [chatMessages, activeChatId]);
 
   const resolveFilePath = useCallback((requestedPath: string): string | null => {
     const req = normalizePath(requestedPath).toLowerCase();
@@ -628,6 +731,21 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     if (!api) {
       setAgentError('Worker not initialized');
       return;
+    }
+
+    if (!activeChatId) {
+      const now = Date.now();
+      const id = `chat-${now}-${Math.random().toString(36).slice(2, 8)}`;
+      const session: ChatSession = {
+        id,
+        title: makeChatTitle(message),
+        messages: [],
+        createdAt: now,
+        updatedAt: now,
+        projectName: scopedProjectName,
+      };
+      setChatSessions((prev) => [session, ...prev]);
+      setActiveChatId(id);
     }
 
     // Refresh Code panel for the new question: keep user-pinned refs, clear old AI citations
@@ -974,7 +1092,65 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       setIsChatLoading(false);
       setCurrentToolCalls([]);
     }
-  }, [chatMessages, isAgentReady, initializeAgent, resolveFilePath, findFileNodeId, addCodeReference, clearAICodeReferences, clearAIToolHighlights, graph, embeddingStatus]);
+  }, [activeChatId, chatMessages, isAgentReady, initializeAgent, resolveFilePath, findFileNodeId, addCodeReference, clearAICodeReferences, clearAIToolHighlights, graph, embeddingStatus, scopedProjectName]);
+
+  const newChat = useCallback(() => {
+    const now = Date.now();
+    const id = `chat-${now}-${Math.random().toString(36).slice(2, 8)}`;
+    const session: ChatSession = {
+      id,
+      title: 'New Chat',
+      messages: [],
+      createdAt: now,
+      updatedAt: now,
+      projectName: scopedProjectName,
+    };
+
+    setChatSessions((prev) => [session, ...prev]);
+    setActiveChatId(id);
+    setChatMessages([]);
+    setCurrentToolCalls([]);
+    setAgentError(null);
+  }, [scopedProjectName]);
+
+  const loadChat = useCallback((chatId: string) => {
+    const session = scopedSessions.find((item) => item.id === chatId);
+    if (!session) return;
+    setActiveChatId(chatId);
+    setChatMessages(session.messages);
+    setCurrentToolCalls([]);
+    setAgentError(null);
+  }, [scopedSessions]);
+
+  const deleteChat = useCallback((chatId: string) => {
+    setChatSessions((prev) => prev.filter((session) => session.id !== chatId));
+
+    if (activeChatId === chatId) {
+      const remaining = scopedSessions.filter((session) => session.id !== chatId);
+      if (remaining.length > 0) {
+        setActiveChatId(remaining[0].id);
+        setChatMessages(remaining[0].messages);
+      } else {
+        setActiveChatId(null);
+        setChatMessages([]);
+      }
+    }
+
+    setCurrentToolCalls([]);
+  }, [activeChatId, scopedSessions]);
+
+  const renameChat = useCallback((chatId: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    setChatSessions((prev) => prev.map((session) => {
+      if (session.id !== chatId) return session;
+      return {
+        ...session,
+        title: trimmed,
+        updatedAt: Date.now(),
+      };
+    }));
+  }, []);
 
   const stopChatResponse = useCallback(() => {
     const api = apiRef.current;
@@ -989,7 +1165,17 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     setChatMessages([]);
     setCurrentToolCalls([]);
     setAgentError(null);
-  }, []);
+
+    if (!activeChatId) return;
+    setChatSessions((prev) => prev.map((session) => {
+      if (session.id !== activeChatId) return session;
+      return {
+        ...session,
+        messages: [],
+        updatedAt: Date.now(),
+      };
+    }));
+  }, [activeChatId]);
 
   const removeCodeReference = useCallback((id: string) => {
     setCodeReferences(prev => {
@@ -1107,6 +1293,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     agentError,
     // Chat state
     chatMessages,
+    chatSessions: scopedSessions,
+    activeChatId,
     isChatLoading,
     currentToolCalls,
     // LLM methods
@@ -1115,6 +1303,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     sendChatMessage,
     stopChatResponse,
     clearChat,
+    newChat,
+    loadChat,
+    deleteChat,
+    renameChat,
     // Code References Panel
     codeReferences,
     isCodePanelOpen,
