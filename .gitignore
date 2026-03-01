@@ -53,6 +53,9 @@ repomix-output*
 
 # Design docs (local only)
 docs/plans/
-arscontexta/
-hypergraph/
-
+arscontexta
+hypergraph
+.omc
+.claude
+AGENTS.md
+CLAUDE.md
