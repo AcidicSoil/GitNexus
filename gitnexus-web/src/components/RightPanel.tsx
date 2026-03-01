@@ -33,12 +33,15 @@ export const RightPanel = () => {
     newChat,
     loadChat,
     deleteChat,
+    rightPanelWidth,
+    setRightPanelWidth,
   } = useAppState();
 
   const [chatInput, setChatInput] = useState('');
   const [activeTab, setActiveTab] = useState<'chat' | 'processes'>('chat');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const resizeStateRef = useRef<{ startX: number; startWidth: number } | null>(null);
 
   // Auto-scroll to bottom when messages update or while streaming
   useEffect(() => {
@@ -164,7 +167,43 @@ export const RightPanel = () => {
     }
   }, [handleGroundingClick, handleNodeGroundingClick]);
 
+  const handlePointerMove = useCallback((event: PointerEvent) => {
+    const resizeState = resizeStateRef.current;
+    if (!resizeState) return;
 
+    const delta = resizeState.startX - event.clientX;
+    setRightPanelWidth(resizeState.startWidth + delta);
+  }, [setRightPanelWidth]);
+
+  const handlePointerUp = useCallback(() => {
+    resizeStateRef.current = null;
+    document.body.style.userSelect = '';
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', handlePointerUp);
+    window.removeEventListener('pointercancel', handlePointerUp);
+  }, [handlePointerMove]);
+
+  const handleResizeStart = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    resizeStateRef.current = {
+      startX: event.clientX,
+      startWidth: rightPanelWidth,
+    };
+    document.body.style.userSelect = 'none';
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', handlePointerUp);
+    window.addEventListener('pointercancel', handlePointerUp);
+  }, [rightPanelWidth, handlePointerMove, handlePointerUp]);
+
+  useEffect(() => {
+    return () => {
+      document.body.style.userSelect = '';
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', handlePointerUp);
+      window.removeEventListener('pointercancel', handlePointerUp);
+    };
+  }, [handlePointerMove, handlePointerUp]);
 
   // Auto-resize textarea as user types
   const adjustTextareaHeight = useCallback(() => {
@@ -353,7 +392,14 @@ export const RightPanel = () => {
   if (!isRightPanelOpen) return null;
 
   return (
-    <aside className="w-[40%] min-w-[400px] max-w-[600px] flex flex-col bg-deep border-l border-border-subtle animate-slide-in relative z-30 flex-shrink-0">
+    <aside
+      className="min-w-0 flex flex-col bg-deep border-l border-border-subtle animate-slide-in relative z-30 flex-shrink-0"
+      style={{ width: rightPanelWidth }}
+    >
+      <div
+        className="absolute left-0 top-0 h-full w-1.5 cursor-col-resize touch-none hover:bg-accent/30"
+        onPointerDown={handleResizeStart}
+      />
       {/* Header with Tabs */}
       <div className="flex items-center justify-between px-4 py-2 bg-surface border-b border-border-subtle">
         <div className="flex items-center gap-1">

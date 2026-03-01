@@ -71,6 +71,8 @@ interface AppState {
   setRightPanelOpen: (open: boolean) => void;
   rightPanelTab: RightPanelTab;
   setRightPanelTab: (tab: RightPanelTab) => void;
+  rightPanelWidth: number;
+  setRightPanelWidth: (width: number) => void;
   openCodePanel: () => void;
   openChatPanel: () => void;
 
@@ -178,6 +180,13 @@ interface AppState {
 const AppStateContext = createContext<AppState | null>(null);
 
 const CHAT_HISTORY_STORAGE_KEY = 'gitnexus.chatHistory';
+const RIGHT_PANEL_WIDTH_STORAGE_KEY = 'gitnexus.rightPanelWidth';
+const DEFAULT_RIGHT_PANEL_WIDTH = 480;
+const MIN_RIGHT_PANEL_WIDTH = 360;
+const MAX_RIGHT_PANEL_WIDTH = 900;
+
+const clampRightPanelWidth = (value: number): number =>
+  Math.min(MAX_RIGHT_PANEL_WIDTH, Math.max(MIN_RIGHT_PANEL_WIDTH, value));
 
 const makeChatTitle = (input: string): string => {
   const trimmed = input.trim();
@@ -207,6 +216,30 @@ const loadChatSessionsFromStorage = (): ChatSession[] => {
   }
 };
 
+const loadRightPanelWidth = (): number => {
+  if (typeof window === 'undefined') return DEFAULT_RIGHT_PANEL_WIDTH;
+
+  try {
+    const raw = localStorage.getItem(RIGHT_PANEL_WIDTH_STORAGE_KEY);
+    if (raw === null) return DEFAULT_RIGHT_PANEL_WIDTH;
+
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) ? clampRightPanelWidth(parsed) : DEFAULT_RIGHT_PANEL_WIDTH;
+  } catch {
+    return DEFAULT_RIGHT_PANEL_WIDTH;
+  }
+};
+
+const persistRightPanelWidth = (width: number): void => {
+  if (typeof window === 'undefined') return;
+
+  try {
+    localStorage.setItem(RIGHT_PANEL_WIDTH_STORAGE_KEY, String(width));
+  } catch {
+    // no-op: storage may be unavailable/quota exceeded
+  }
+};
+
 export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // View state
   const [viewMode, setViewMode] = useState<ViewMode>('onboarding');
@@ -221,6 +254,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // Right Panel
   const [isRightPanelOpen, setRightPanelOpen] = useState(false);
   const [rightPanelTab, setRightPanelTab] = useState<RightPanelTab>('code');
+  const [rightPanelWidth, setRightPanelWidthState] = useState(loadRightPanelWidth);
+  const setRightPanelWidth = useCallback((width: number) => {
+    setRightPanelWidthState(clampRightPanelWidth(width));
+  }, []);
 
   const openCodePanel = useCallback(() => {
     // Legacy API: used by graph/tree selection.
@@ -369,6 +406,10 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   }, [chatSessions, persistChatSessions]);
 
   useEffect(() => {
+    persistRightPanelWidth(rightPanelWidth);
+  }, [rightPanelWidth]);
+
+  useEffect(() => {
     if (scopedSessions.length === 0) {
       setActiveChatId(null);
       setChatMessages([]);
@@ -390,24 +431,46 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     setChatMessages(activeSession.messages);
   }, [activeChatId, scopedSessions]);
 
-  useEffect(() => {
+  const syncActiveChatSession = useCallback((options?: { bumpUpdatedAt?: boolean }) => {
     if (!activeChatId) return;
-    setChatSessions((prev) => prev.map((session) => {
-      if (session.id !== activeChatId) return session;
 
+    setChatSessions((prev) => {
+      const sessionIndex = prev.findIndex((session) => session.id === activeChatId);
+      if (sessionIndex === -1) return prev;
+
+      const session = prev[sessionIndex];
       const firstUserMessage = chatMessages.find((message) => message.role === 'user')?.content;
       const nextTitle = session.title === 'New Chat' && firstUserMessage
         ? makeChatTitle(firstUserMessage)
         : session.title;
+      const nextUpdatedAt = options?.bumpUpdatedAt ? Date.now() : session.updatedAt;
 
-      return {
+      if (
+        nextTitle === session.title
+        && session.messages === chatMessages
+        && nextUpdatedAt === session.updatedAt
+      ) {
+        return prev;
+      }
+
+      const nextSession: ChatSession = {
         ...session,
         title: nextTitle,
         messages: chatMessages,
-        updatedAt: Date.now(),
+        updatedAt: nextUpdatedAt,
       };
-    }));
-  }, [chatMessages, activeChatId]);
+
+      const nextSessions = [...prev];
+      nextSessions[sessionIndex] = nextSession;
+      return nextSessions;
+    });
+  }, [activeChatId, chatMessages]);
+
+  useEffect(() => {
+    syncActiveChatSession({ bumpUpdatedAt: pendingSubmitUpdatedAtBumpRef.current || pendingCompletionUpdatedAtBumpRef.current });
+    pendingSubmitUpdatedAtBumpRef.current = false;
+    pendingCompletionUpdatedAtBumpRef.current = false;
+  }, [syncActiveChatSession]);
 
   const resolveFilePath = useCallback((requestedPath: string): string | null => {
     const req = normalizePath(requestedPath).toLowerCase();
@@ -524,6 +587,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
   // Worker (single instance shared across app)
   const workerRef = useRef<Worker | null>(null);
   const apiRef = useRef<Comlink.Remote<IngestionWorkerApi> | null>(null);
+  const pendingSubmitUpdatedAtBumpRef = useRef(false);
+  const pendingCompletionUpdatedAtBumpRef = useRef(false);
 
   useEffect(() => {
     const worker = new Worker(
@@ -766,6 +831,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       content: message,
       timestamp: Date.now(),
     };
+    pendingSubmitUpdatedAtBumpRef.current = true;
     setChatMessages(prev => [...prev, userMessage]);
 
     // If embeddings are running and we're currently creating the vector index,
@@ -1079,6 +1145,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
 
           case 'done':
             // Finalize the assistant message - just call updateMessage one more time
+            pendingCompletionUpdatedAtBumpRef.current = true;
             updateMessage();
             break;
         }
@@ -1158,8 +1225,9 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
       api.stopChat();
       setIsChatLoading(false);
       setCurrentToolCalls([]);
+      syncActiveChatSession({ bumpUpdatedAt: true });
     }
-  }, [isChatLoading]);
+  }, [isChatLoading, syncActiveChatSession]);
 
   const clearChat = useCallback(() => {
     setChatMessages([]);
@@ -1242,6 +1310,8 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     setRightPanelOpen,
     rightPanelTab,
     setRightPanelTab,
+    rightPanelWidth,
+    setRightPanelWidth,
     openCodePanel,
     openChatPanel,
     visibleLabels,
