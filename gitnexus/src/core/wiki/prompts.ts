@@ -188,6 +188,7 @@ export function formatProcesses(
   processes: Array<{
     label: string;
     type: string;
+    description?: string;
     steps: Array<{ step: number; name: string; filePath: string }>;
   }>,
 ): string {
@@ -195,10 +196,11 @@ export function formatProcesses(
 
   return processes
     .map(p => {
+      const desc = p.description ? `\n  Summary: ${p.description}` : '';
       const stepsText = p.steps
         .map(s => `  ${s.step}. ${s.name} (${shortPath(s.filePath)})`)
         .join('\n');
-      return `**${p.label}** (${p.type}):\n${stepsText}`;
+      return `**${p.label}** (${p.type}):${desc}\n${stepsText}`;
     })
     .join('\n\n');
 }
