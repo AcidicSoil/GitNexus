@@ -409,6 +409,7 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
     persistRightPanelWidth(rightPanelWidth);
   }, [rightPanelWidth]);
 
+  // ── Resolve activeChatId when sessions change (initial mount / project switch / delete) ──
   useEffect(() => {
     if (scopedSessions.length === 0) {
       setActiveChatId(null);
@@ -418,18 +419,16 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
 
     setActiveChatId((prev) => {
       if (prev && scopedSessions.some((session) => session.id === prev)) {
-        return prev;
+        return prev; // Current ID is still valid — don't touch chatMessages
       }
-      return scopedSessions[0].id;
+      // Current ID is invalid or null — fall back to most recent session
+      // and load its messages (this only happens on mount or project switch)
+      const fallback = scopedSessions[0];
+      // Schedule message load for next microtask to avoid setState-in-setState
+      queueMicrotask(() => setChatMessages(fallback.messages));
+      return fallback.id;
     });
   }, [scopedSessions]);
-
-  useEffect(() => {
-    if (!activeChatId) return;
-    const activeSession = scopedSessions.find((session) => session.id === activeChatId);
-    if (!activeSession) return;
-    setChatMessages(activeSession.messages);
-  }, [activeChatId, scopedSessions]);
 
   const syncActiveChatSession = useCallback((options?: { bumpUpdatedAt?: boolean }) => {
     if (!activeChatId) return;
