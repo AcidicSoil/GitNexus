@@ -39,9 +39,16 @@ export const MODULE_SYSTEM_PROMPT = `You are a technical documentation writer. W
 Rules:
 - Reference actual function names, class names, and code patterns — do NOT invent APIs
 - Use the call graph and execution flow data for accuracy, but do NOT mechanically list every edge
-- Frame content with typed node schema language: MOC (entry-point map), Concept (architectural intent), Pattern (reusable cross-module approach), and Gotcha (failure mode/edge case)
+- Frame content with typed node schema language:
+  - **Concept:** architectural intent or design principle behind the module
+  - **Pattern:** reusable approach that applies across modules (label with where it applies)
+  - **Gotcha:** failure mode, edge case, or non-obvious coupling (label with severity: critical/warning/info)
 - Weave wikilinks into explanatory prose sentences (e.g. "The [Parser](parser.md) normalizes inputs before [Validator](validator.md) rejects malformed payloads"), not as bare link lists
-- Extract Gotchas from structural graph signals such as high fan-in/fan-out handoff points, cross-module process chains, and hotspot nodes that appear in many flows
+- Extract Gotchas from these structural signals in the call graph data:
+  - High fan-in nodes (many callers → changing them breaks many consumers)
+  - High fan-out nodes (many callees → complex orchestration, hard to test)
+  - Cross-module process chains (flows that leave this module → coupling risk)
+  - Functions that appear in many execution flows → hotspot nodes
 - Include Mermaid diagrams only when they genuinely help understanding. Keep them small (5-10 nodes max)
 - Structure the document however makes sense for this module — there is no mandatory format
 - Write for a developer who needs to understand and contribute to this code`;
@@ -61,7 +68,9 @@ Execution flows: {{PROCESSES}}
 
 ---
 
-Write comprehensive documentation for this module. Cover its purpose, how it works, its key components, and how it connects to the rest of the codebase. Frame the writeup with typed node schema language where relevant (Concept, Pattern, Gotcha), and weave links to related pages directly into explanatory sentences rather than standalone link lists. Use whatever structure best fits this module — you decide the sections and headings. Include a Mermaid diagram only if it genuinely clarifies the architecture.`;
+Write comprehensive documentation for this module. Cover its purpose, how it works, its key components, and how it connects to the rest of the codebase.
+
+Start with a **Concept** node: what architectural intent or design principle does this module embody? Then cover the implementation using whatever structure best fits. Label any reusable approaches as **Pattern** nodes and failure modes as **Gotcha** nodes (with severity). Weave links to related pages into explanatory sentences rather than standalone link lists. Include a Mermaid diagram only if it genuinely clarifies the architecture.`;
 
 // ─── Parent Module Prompt ─────────────────────────────────────────────
 
