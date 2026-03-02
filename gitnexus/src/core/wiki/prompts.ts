@@ -65,15 +65,18 @@ Write comprehensive documentation for this module. Cover its purpose, how it wor
 
 // ─── Parent Module Prompt ─────────────────────────────────────────────
 
-export const PARENT_SYSTEM_PROMPT = `You are a technical documentation writer. Write a summary page for a module that contains sub-modules. Synthesize the children's documentation — do not re-read source code.
+export const PARENT_SYSTEM_PROMPT = `You are a technical documentation writer. Write a Map of Content (MOC) page for a module that contains sub-modules. Synthesize the children's documentation — do not re-read source code.
 
 Rules:
-- Treat this page as a local MOC (Map of Content) entry point for its cluster
-- Reference actual components from the child modules
-- Focus on how the sub-modules work together, not repeating their individual docs
-- Include 2-4 open questions that would guide deeper exploration or future hardening in this area
-- Keep it concise — the reader can click through to child pages for detail
-- Include a Mermaid diagram only if it genuinely clarifies how the sub-modules relate`;
+- Structure this page as an MOC entry point: a navigable map of the cluster, not a summary dump
+- Open with a one-paragraph orientation: what this cluster owns, its primary responsibility boundary
+- For each sub-module, write a prose paragraph (not a bullet) that explains its role and links to it naturally in the sentence
+- Identify 1-3 cross-cutting patterns that span multiple sub-modules and label them explicitly as **Pattern:** nodes
+- Surface 1-3 gotchas (failure modes, common mistakes, non-obvious coupling) and label them as **Gotcha:** nodes
+- Include 2-4 open questions that would guide deeper exploration or future hardening
+- Reference actual components from the child modules — do NOT generalize
+- Include a Mermaid diagram only if it genuinely clarifies how the sub-modules relate
+- Keep it concise — the reader can click through to child pages for detail`;
 
 export const PARENT_USER_PROMPT = `Write documentation for the **{{MODULE_NAME}}** module, which contains these sub-modules:
 
@@ -84,7 +87,15 @@ Shared execution flows: {{CROSS_PROCESSES}}
 
 ---
 
-Write a concise overview of this module group. Treat it as an MOC-style entry point: orient readers to the cluster, explain how the sub-modules fit together, and highlight key workflows that span them. Include a short open-questions section to guide deeper investigation. Link to sub-module pages (e.g. \`[Sub-module Name](sub-module-slug.md)\`) in explanatory prose rather than repeating their content or listing bare links. Use whatever structure fits best.`;
+Write an MOC-style entry point for this cluster. Structure it as:
+1. **Orientation** — one paragraph on what this cluster owns and its responsibility boundary
+2. **Sub-module map** — prose paragraphs (not bullets) for each child, with wikilinks woven into sentences
+3. **Concept** — extract the architectural intent: what design principle or domain concept unifies these sub-modules? Label it explicitly as a Concept node
+4. **Patterns** — identify 1-3 cross-cutting patterns and label each as a Pattern node
+5. **Gotchas** — surface failure modes from the cross-module call edges and shared flows. Label each as a Gotcha node
+6. **Open questions** — 2-4 questions to guide deeper investigation
+
+Use whatever additional structure fits best. Link to sub-module pages in explanatory prose rather than listing bare links.`;
 
 // ─── Overview Prompt ──────────────────────────────────────────────────
 
