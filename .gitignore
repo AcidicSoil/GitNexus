@@ -56,10 +56,11 @@ docs/plans/
 arscontexta
 #hypergraph
 .omc
-.claude
-AGENTS.md
-CLAUDE.md
+#.claude
+#AGENTS.md
+#CLAUDE.md
 scripts
-.mypy_cache
+#.mypy_cache
 .mcp.json
-.mcp_data
+#.mcp_data
+#
