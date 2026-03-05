@@ -53,14 +53,3 @@ repomix-output*
 
 # Design docs (local only)
 docs/plans/
-arscontexta
-#hypergraph
-.omc
-#.claude
-#AGENTS.md
-#CLAUDE.md
-scripts
-#.mypy_cache
-.mcp.json
-#.mcp_data
-#
