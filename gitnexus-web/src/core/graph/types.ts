@@ -1,22 +1,24 @@
-export type NodeLabel =
-  | 'Project'
-  | 'Package'
-  | 'Module'
-  | 'Folder'
-  | 'File'
-  | 'Class'
-  | 'Function'
-  | 'Method'
-  | 'Variable'
-  | 'Interface'
-  | 'Enum'
-  | 'Decorator'
-  | 'Import'
-  | 'Type'
-  | 'CodeElement'
-  | 'Community'
-  | 'Process';
+export const NODE_LABELS = [
+  'Project',
+  'Package',
+  'Module',
+  'Folder',
+  'File',
+  'Class',
+  'Function',
+  'Method',
+  'Variable',
+  'Interface',
+  'Enum',
+  'Decorator',
+  'Import',
+  'Type',
+  'CodeElement',
+  'Community',
+  'Process',
+] as const;
 
+export type NodeLabel = typeof NODE_LABELS[number];
 
 export type NodeProperties = {
   name: string,
@@ -43,11 +45,11 @@ export type NodeProperties = {
   entryPointReason?: string,
 }
 
-export type RelationshipType = 
-  | 'CONTAINS' 
-  | 'CALLS' 
-  | 'INHERITS' 
-  | 'OVERRIDES' 
+export type RelationshipType =
+  | 'CONTAINS'
+  | 'CALLS'
+  | 'INHERITS'
+  | 'OVERRIDES'
   | 'IMPORTS'
   | 'USES'
   | 'DEFINES'
@@ -56,6 +58,7 @@ export type RelationshipType =
   | 'EXTENDS'
   | 'MEMBER_OF'
   | 'STEP_IN_PROCESS'
+  | 'REFERENCES'
 
 export interface GraphNode {
   id:  string,

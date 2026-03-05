@@ -91,7 +91,16 @@ export const FILTERABLE_LABELS: NodeLabel[] = [
 ];
 
 // Edge/Relation types
-export type EdgeType = 'CONTAINS' | 'DEFINES' | 'IMPORTS' | 'CALLS' | 'EXTENDS' | 'IMPLEMENTS';
+export type EdgeType =
+  | 'CONTAINS'
+  | 'DEFINES'
+  | 'IMPORTS'
+  | 'CALLS'
+  | 'EXTENDS'
+  | 'IMPLEMENTS'
+  | 'MEMBER_OF'
+  | 'STEP_IN_PROCESS'
+  | 'REFERENCES';
 
 export const ALL_EDGE_TYPES: EdgeType[] = [
   'CONTAINS',
@@ -100,6 +109,9 @@ export const ALL_EDGE_TYPES: EdgeType[] = [
   'CALLS',
   'EXTENDS',
   'IMPLEMENTS',
+  'MEMBER_OF',
+  'STEP_IN_PROCESS',
+  'REFERENCES',
 ];
 
 // Default visible edges (CALLS hidden by default to reduce clutter)
@@ -110,6 +122,9 @@ export const DEFAULT_VISIBLE_EDGES: EdgeType[] = [
   'EXTENDS',
   'IMPLEMENTS',
   'CALLS',
+  'MEMBER_OF',
+  'STEP_IN_PROCESS',
+  'REFERENCES',
 ];
 
 // Edge display info for UI
@@ -120,4 +135,7 @@ export const EDGE_INFO: Record<EdgeType, { color: string; label: string }> = {
   CALLS: { color: '#7c3aed', label: 'Calls' },
   EXTENDS: { color: '#c2410c', label: 'Extends' },
   IMPLEMENTS: { color: '#be185d', label: 'Implements' },
+  MEMBER_OF: { color: '#0f766e', label: 'Member Of' },
+  STEP_IN_PROCESS: { color: '#dc2626', label: 'Step In Process' },
+  REFERENCES: { color: '#0891b2', label: 'References' },
 };

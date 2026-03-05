@@ -12,6 +12,7 @@ import { loadSettings, getActiveProviderConfig, saveSettings } from '../core/llm
 import type { AgentMessage } from '../core/llm/agent';
 import { DEFAULT_VISIBLE_EDGES, type EdgeType } from '../lib/constants';
 import { runCypherQuery, getBackendUrl } from '../services/backend';
+import { tokenizeWikilinks } from '../core/wikilinks/parser';
 
 export type ViewMode = 'onboarding' | 'loading' | 'exploring';
 export type RightPanelTab = 'code' | 'chat';
@@ -946,60 +947,46 @@ export const AppStateProvider = ({ children }: { children: ReactNode }) => {
                 ? (currentContentStep.content || '')
                 : '';
 
-              // Pattern 1: File refs - [[path/file.ext]] or [[path/file.ext:line]] or [[path/file.ext:line-line]]
-              // Line numbers are optional
-              const fileRefRegex = /\[\[([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+)(?::(\d+)(?:[-–](\d+))?)?\]\]/g;
-              let fileMatch: RegExpExecArray | null;
-              while ((fileMatch = fileRefRegex.exec(fullText)) !== null) {
-                const rawPath = fileMatch[1].trim();
-                const startLine1 = fileMatch[2] ? parseInt(fileMatch[2], 10) : undefined;
-                const endLine1 = fileMatch[3] ? parseInt(fileMatch[3], 10) : startLine1;
+              for (const token of tokenizeWikilinks(fullText)) {
+                if (token.type === 'code-ref') {
+                  const resolvedPath = resolveFilePath(token.path);
+                  if (!resolvedPath) continue;
 
-                const resolvedPath = resolveFilePath(rawPath);
-                if (!resolvedPath) continue;
+                  const startLine0 = token.startLine !== undefined ? Math.max(0, token.startLine - 1) : undefined;
+                  const endLine0 = token.endLine !== undefined ? Math.max(0, token.endLine - 1) : startLine0;
+                  const nodeId = findFileNodeId(resolvedPath);
 
-                const startLine0 = startLine1 !== undefined ? Math.max(0, startLine1 - 1) : undefined;
-                const endLine0 = endLine1 !== undefined ? Math.max(0, endLine1 - 1) : startLine0;
-                const nodeId = findFileNodeId(resolvedPath);
+                  addCodeReference({
+                    filePath: resolvedPath,
+                    startLine: startLine0,
+                    endLine: endLine0,
+                    nodeId,
+                    label: 'File',
+                    name: resolvedPath.split('/').pop() ?? resolvedPath,
+                    source: 'ai',
+                  });
+                }
 
-                addCodeReference({
-                  filePath: resolvedPath,
-                  startLine: startLine0,
-                  endLine: endLine0,
-                  nodeId,
-                  label: 'File',
-                  name: resolvedPath.split('/').pop() ?? resolvedPath,
-                  source: 'ai',
-                });
-              }
+                if (token.type === 'node-ref') {
+                  if (!graph) continue;
+                  const node = graph.nodes.find(
+                    (n) => n.label === token.nodeType && n.properties.name === token.nodeName
+                  );
+                  if (!node || !node.properties.filePath) continue;
 
-              // Pattern 2: Node refs - [[Type:Name]] or [[graph:Type:Name]]
-              const nodeRefRegex = /\[\[(?:graph:)?(Class|Function|Method|Interface|File|Folder|Variable|Enum|Type|CodeElement):([^\]]+)\]\]/g;
-              let nodeMatch: RegExpExecArray | null;
-              while ((nodeMatch = nodeRefRegex.exec(fullText)) !== null) {
-                const nodeType = nodeMatch[1];
-                const nodeName = nodeMatch[2].trim();
+                  const resolvedPath = resolveFilePath(node.properties.filePath);
+                  if (!resolvedPath) continue;
 
-                // Find node in graph
-                if (!graph) continue;
-                const node = graph.nodes.find(n =>
-                  n.label === nodeType &&
-                  n.properties.name === nodeName
-                );
-                if (!node || !node.properties.filePath) continue;
-
-                const resolvedPath = resolveFilePath(node.properties.filePath);
-                if (!resolvedPath) continue;
-
-                addCodeReference({
-                  filePath: resolvedPath,
-                  startLine: node.properties.startLine ? node.properties.startLine - 1 : undefined,
-                  endLine: node.properties.endLine ? node.properties.endLine - 1 : undefined,
-                  nodeId: node.id,
-                  label: node.label,
-                  name: node.properties.name,
-                  source: 'ai',
-                });
+                  addCodeReference({
+                    filePath: resolvedPath,
+                    startLine: node.properties.startLine ? node.properties.startLine - 1 : undefined,
+                    endLine: node.properties.endLine ? node.properties.endLine - 1 : undefined,
+                    nodeId: node.id,
+                    label: node.label,
+                    name: node.properties.name,
+                    source: 'ai',
+                  });
+                }
               }
             }
             break;

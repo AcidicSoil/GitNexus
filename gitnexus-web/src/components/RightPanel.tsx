@@ -10,6 +10,7 @@ import { ToolCallCard } from './ToolCallCard';
 import { isProviderConfigured } from '../core/llm/settings-service';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { ProcessesPanel } from './ProcessesPanel';
+import { extractWikilinks, tokenizeWikilinks } from '../core/wikilinks/parser';
 export const RightPanel = () => {
   const {
     isRightPanelOpen,
@@ -23,7 +24,6 @@ export const RightPanel = () => {
     chatSessions,
     activeChatId,
     isChatLoading,
-    currentToolCalls,
     agentError,
     isAgentReady,
     isAgentInitializing,
@@ -35,6 +35,8 @@ export const RightPanel = () => {
     deleteChat,
     rightPanelWidth,
     setRightPanelWidth,
+    setSelectedNode,
+    openCodePanel,
   } = useAppState();
 
   const [chatInput, setChatInput] = useState('');
@@ -85,27 +87,20 @@ export const RightPanel = () => {
     const raw = inner.trim();
     if (!raw) return;
 
-    let rawPath = raw;
-    let startLine1: number | undefined;
-    let endLine1: number | undefined;
+    const token = tokenizeWikilinks(`[[${raw}]]`).find((t) => t.type === 'code-ref');
+    if (!token || token.type !== 'code-ref') return;
 
-    // Match line:num or line:num-num (supports both hyphen - and en dash –)
-    const lineMatch = raw.match(/^(.*):(\d+)(?:[-–](\d+))?$/);
-    if (lineMatch) {
-      rawPath = lineMatch[1].trim();
-      startLine1 = parseInt(lineMatch[2], 10);
-      endLine1 = parseInt(lineMatch[3] || lineMatch[2], 10);
-    }
-
-    const resolvedPath = resolveFilePathForUI(rawPath);
+    const resolvedPath = resolveFilePathForUI(token.path);
     if (!resolvedPath) return;
 
+    const startLine0 = token.startLine !== undefined ? Math.max(0, token.startLine - 1) : undefined;
+    const endLine0 = token.endLine !== undefined ? Math.max(0, token.endLine - 1) : startLine0;
     const nodeId = findFileNodeIdForUI(resolvedPath);
 
     addCodeReference({
       filePath: resolvedPath,
-      startLine: startLine1 ? Math.max(0, startLine1 - 1) : undefined,
-      endLine: endLine1 ? Math.max(0, endLine1 - 1) : (startLine1 ? Math.max(0, startLine1 - 1) : undefined),
+      startLine: startLine0,
+      endLine: endLine0,
       nodeId,
       label: 'File',
       name: resolvedPath.split('/').pop() ?? resolvedPath,
@@ -113,34 +108,37 @@ export const RightPanel = () => {
     });
   }, [addCodeReference, findFileNodeIdForUI, resolveFilePathForUI]);
 
-  // Handler for node grounding: [[Class:View]], [[Function:trigger]], etc.
+  // Handler for node grounding: [[Class:View]], [[Function:trigger]], [[Community:...]], [[Process:...]], etc.
   const handleNodeGroundingClick = useCallback((nodeTypeAndName: string) => {
     const raw = nodeTypeAndName.trim();
     if (!raw || !graph) return;
 
-    // Parse Type:Name format
-    const match = raw.match(/^(Class|Function|Method|Interface|File|Folder|Variable|Enum|Type|CodeElement):(.+)$/);
-    if (!match) return;
+    const token = tokenizeWikilinks(`[[${raw}]]`).find((t) => t.type === 'node-ref');
+    if (!token || token.type !== 'node-ref') return;
 
-    const [, nodeType, nodeName] = match;
-    const trimmedName = nodeName.trim();
-
-    // Find node in graph by type + name
-    const node = graph.nodes.find(n =>
-      n.label === nodeType &&
-      n.properties.name === trimmedName
+    const { nodeType, nodeName } = token;
+    const exactMatches = graph.nodes.filter((n) =>
+      n.label === nodeType && n.properties.name === nodeName
     );
+    const ciMatches = exactMatches.length === 0
+      ? graph.nodes.filter((n) =>
+          n.label === nodeType && n.properties.name.toLowerCase() === nodeName.toLowerCase()
+        )
+      : [];
 
+    const candidates = (exactMatches.length > 0 ? exactMatches : ciMatches)
+      .slice()
+      .sort((a, b) => a.id.localeCompare(b.id));
+
+    const node = candidates[0];
     if (!node) {
-      console.warn(`Node not found: ${nodeType}:${trimmedName}`);
+      console.warn(`Node not found: ${nodeType}:${nodeName}`);
       return;
     }
 
-    // 1. Highlight in graph (add to AI citation highlights)
-    // Note: This requires accessing the state setter from parent context
-    // For now, we'll add to code references which triggers the highlight
+    setSelectedNode(node);
+    openCodePanel();
 
-    // 2. Add to Code Panel (if node has file/line info)
     if (node.properties.filePath) {
       const resolvedPath = resolveFilePathForUI(node.properties.filePath);
       if (resolvedPath) {
@@ -155,7 +153,7 @@ export const RightPanel = () => {
         });
       }
     }
-  }, [graph, resolveFilePathForUI, addCodeReference]);
+  }, [graph, setSelectedNode, openCodePanel, resolveFilePathForUI, addCodeReference]);
 
   const handleLinkClick = useCallback((href: string) => {
     if (href.startsWith('code-ref:')) {
@@ -262,19 +260,15 @@ export const RightPanel = () => {
 
   const extractCitationsFromContent = useCallback((content: string): string[] => {
     const citations = new Set<string>();
-
-    const fileRefRegex = /\[\[([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+(?::\d+(?:[-–]\d+)?)?)\]\]/g;
-    let fileMatch: RegExpExecArray | null;
-    while ((fileMatch = fileRefRegex.exec(content)) !== null) {
-      citations.add(`file:${fileMatch[1].trim()}`);
+    for (const ref of extractWikilinks(content)) {
+      if (ref.kind === 'code-ref') citations.add(`file:${ref.raw}`);
+      if (ref.kind === 'node-ref') {
+        const parts = ref.raw.split(':');
+        const nodeType = parts[0];
+        const nodeName = parts.slice(1).join(':');
+        citations.add(`node:${nodeType}:${nodeName}`);
+      }
     }
-
-    const nodeRefRegex = /\[\[(?:graph:)?(Class|Function|Method|Interface|File|Folder|Variable|Enum|Type|CodeElement):([^\]]+)\]\]/g;
-    let nodeMatch: RegExpExecArray | null;
-    while ((nodeMatch = nodeRefRegex.exec(content)) !== null) {
-      citations.add(`node:${nodeMatch[1]}:${nodeMatch[2].trim()}`);
-    }
-
     return Array.from(citations);
   }, []);
 
@@ -643,7 +637,6 @@ export const RightPanel = () => {
                               <MarkdownRenderer
                                 content={message.content}
                                 onLinkClick={handleLinkClick}
-                                toolCalls={message.toolCalls}
                               />
                             )}
                           </div>

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772150251471,
+  "lastScanned": 1772740453903,
   "projectRoot": "/home/user/projects/temp/ai-apps/GitNexus",
   "techStack": {
     "languages": [],
@@ -25,8 +25,7 @@
     "isMonorepo": false,
     "workspaces": [],
     "mainDirectories": [
-      "docs",
-      "scripts"
+      "docs"
     ],
     "gitBranches": {
       "defaultBranch": "main",
@@ -35,30 +34,18 @@
   },
   "customNotes": [],
   "directoryMap": {
-    "arscontexta": {
-      "path": "arscontexta",
-      "purpose": null,
-      "fileCount": 5,
-      "lastAccessed": 1772150251459,
-      "keyFiles": [
-        "AGENTS.md",
-        "CLAUDE.md",
-        "LICENSE",
-        "README.md"
-      ]
-    },
     "docs": {
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1772150251461,
+      "lastAccessed": 1772740453896,
       "keyFiles": []
     },
     "eval": {
       "path": "eval",
       "purpose": null,
       "fileCount": 6,
-      "lastAccessed": 1772150251461,
+      "lastAccessed": 1772740453897,
       "keyFiles": [
         "README.md",
         "__init__.py",
@@ -70,7 +57,7 @@
       "path": "gitnexus",
       "purpose": null,
       "fileCount": 5,
-      "lastAccessed": 1772150251461,
+      "lastAccessed": 1772740453897,
       "keyFiles": [
         "README.md",
         "package-lock.json",
@@ -82,28 +69,28 @@
       "path": "gitnexus-claude-plugin",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772150251461,
+      "lastAccessed": 1772740453898,
       "keyFiles": []
     },
     "gitnexus-cursor-integration": {
       "path": "gitnexus-cursor-integration",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772150251462,
+      "lastAccessed": 1772740453899,
       "keyFiles": []
     },
     "gitnexus-test-setup": {
       "path": "gitnexus-test-setup",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772150251462,
+      "lastAccessed": 1772740453899,
       "keyFiles": []
     },
     "gitnexus-web": {
       "path": "gitnexus-web",
       "purpose": null,
       "fileCount": 11,
-      "lastAccessed": 1772150251462,
+      "lastAccessed": 1772740453899,
       "keyFiles": [
         "index.html",
         "package-lock.json",
@@ -116,7 +103,7 @@
       "path": "hypergraph",
       "purpose": null,
       "fileCount": 9,
-      "lastAccessed": 1772150251463,
+      "lastAccessed": 1772740453900,
       "keyFiles": [
         "README.md",
         "eslint.config.mjs",
@@ -125,38 +112,32 @@
         "package.json"
       ]
     },
-    "scripts": {
-      "path": "scripts",
-      "purpose": "Build/utility scripts",
-      "fileCount": 6,
-      "lastAccessed": 1772150251463,
-      "keyFiles": [
-        "bmad-wizard.py",
-        "deploy-to-project.sh",
-        "error-handler.py",
-        "health-check.sh",
-        "monitor-skills.py"
-      ]
+    "gitnexus/dist": {
+      "path": "gitnexus/dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 0,
+      "lastAccessed": 1772740453900,
+      "keyFiles": []
     },
     "gitnexus/src": {
       "path": "gitnexus/src",
       "purpose": "Source code",
       "fileCount": 0,
-      "lastAccessed": 1772150251464,
+      "lastAccessed": 1772740453901,
       "keyFiles": []
     },
     "gitnexus/vendor": {
       "path": "gitnexus/vendor",
       "purpose": "Third-party code",
       "fileCount": 0,
-      "lastAccessed": 1772150251464,
+      "lastAccessed": 1772740453901,
       "keyFiles": []
     },
     "gitnexus-web/api": {
       "path": "gitnexus-web/api",
       "purpose": "API routes",
       "fileCount": 1,
-      "lastAccessed": 1772150251464,
+      "lastAccessed": 1772740453901,
       "keyFiles": [
         "proxy.ts"
       ]
@@ -165,7 +146,7 @@
       "path": "gitnexus-web/dist",
       "purpose": "Distribution/build output",
       "fileCount": 1,
-      "lastAccessed": 1772150251465,
+      "lastAccessed": 1772740453901,
       "keyFiles": [
         "index.html"
       ]
@@ -174,21 +155,21 @@
       "path": "gitnexus-web/node_modules",
       "purpose": "Dependencies",
       "fileCount": 1,
-      "lastAccessed": 1772150251467,
+      "lastAccessed": 1772740453902,
       "keyFiles": []
     },
     "gitnexus-web/public": {
       "path": "gitnexus-web/public",
       "purpose": "Public files",
       "fileCount": 0,
-      "lastAccessed": 1772150251468,
+      "lastAccessed": 1772740453902,
       "keyFiles": []
     },
     "gitnexus-web/src": {
       "path": "gitnexus-web/src",
       "purpose": "Source code",
       "fileCount": 4,
-      "lastAccessed": 1772150251468,
+      "lastAccessed": 1772740453903,
       "keyFiles": [
         "App.tsx",
         "index.css",
@@ -199,7 +180,7 @@
       "path": "hypergraph/app",
       "purpose": "Application code",
       "fileCount": 5,
-      "lastAccessed": 1772150251469,
+      "lastAccessed": 1772740453903,
       "keyFiles": [
         "favicon.ico",
         "globals.css",
@@ -210,7 +191,7 @@
       "path": "hypergraph/components",
       "purpose": "UI components",
       "fileCount": 4,
-      "lastAccessed": 1772150251470,
+      "lastAccessed": 1772740453903,
       "keyFiles": [
         "FileTreePanel.tsx",
         "GraphView.tsx",
@@ -221,7 +202,7 @@
       "path": "hypergraph/lib",
       "purpose": "Library code",
       "fileCount": 3,
-      "lastAccessed": 1772150251471,
+      "lastAccessed": 1772740453903,
       "keyFiles": [
         "generator.ts",
         "hyperbrowser.ts",
@@ -232,111 +213,177 @@
   "hotPaths": [
     {
       "path": "gitnexus-web/src/hooks/useAppState.tsx",
-      "accessCount": 27,
-      "lastAccessed": 1772159288679,
+      "accessCount": 44,
+      "lastAccessed": 1772743883613,
       "type": "file"
     },
     {
-      "path": ".claude/tasks/task-001.md",
-      "accessCount": 22,
-      "lastAccessed": 1772160932462,
+      "path": "gitnexus-web/src/components/RightPanel.tsx",
+      "accessCount": 20,
+      "lastAccessed": 1772743900509,
       "type": "file"
     },
     {
       "path": "",
-      "accessCount": 17,
-      "lastAccessed": 1772160646065,
-      "type": "directory"
-    },
-    {
-      "path": "gitnexus-web/src/components/RightPanel.tsx",
-      "accessCount": 15,
-      "lastAccessed": 1772159288676,
-      "type": "file"
-    },
-    {
-      "path": "gitnexus/src/core/wiki/prompts.ts",
-      "accessCount": 11,
-      "lastAccessed": 1772159288600,
-      "type": "file"
-    },
-    {
-      "path": "gitnexus-web/src",
-      "accessCount": 7,
-      "lastAccessed": 1772152994336,
+      "accessCount": 12,
+      "lastAccessed": 1772743242443,
       "type": "directory"
     },
     {
       "path": "gitnexus-web/src/components/MarkdownRenderer.tsx",
-      "accessCount": 7,
-      "lastAccessed": 1772159288607,
+      "accessCount": 12,
+      "lastAccessed": 1772743748254,
       "type": "file"
     },
     {
-      "path": "gitnexus-web/src/core/llm/types.ts",
-      "accessCount": 4,
-      "lastAccessed": 1772159288591,
+      "path": "gitnexus-web/src/core/graph/types.ts",
+      "accessCount": 9,
+      "lastAccessed": 1772743698788,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src",
+      "accessCount": 8,
+      "lastAccessed": 1772743729600,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web",
+      "accessCount": 6,
+      "lastAccessed": 1772741787508,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/src/components/GraphCanvas.tsx",
+      "accessCount": 6,
+      "lastAccessed": 1772743221778,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/core/llm/agent.ts",
+      "accessCount": 5,
+      "lastAccessed": 1772743221670,
       "type": "file"
     },
     {
       "path": "gitnexus-web/package.json",
+      "accessCount": 5,
+      "lastAccessed": 1772744003195,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/core/llm/tools.ts",
       "accessCount": 4,
-      "lastAccessed": 1772159391209,
+      "lastAccessed": 1772740778326,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/src/core/ingestion/pipeline.ts",
+      "accessCount": 4,
+      "lastAccessed": 1772743221525,
       "type": "file"
     },
     {
-      "path": "gitnexus-web/src/components/ProcessFlowModal.tsx",
+      "path": "gitnexus-web/src/core/ingestion/parsing-processor.ts",
       "accessCount": 3,
-      "lastAccessed": 1772155858608,
+      "lastAccessed": 1772741530874,
       "type": "file"
     },
     {
-      "path": ".claude/skills/gitnexus/exploring/SKILL.md",
+      "path": "gitnexus-web/src/lib/constants.ts",
       "accessCount": 3,
-      "lastAccessed": 1772156655190,
-      "type": "file"
+      "lastAccessed": 1772743198541,
+      "type": "directory"
     },
     {
-      "path": "docs/references/notion/gitnexus-codex-todo/README.md",
+      "path": "gitnexus-web/src/lib/graph-adapter.ts",
       "accessCount": 3,
-      "lastAccessed": 1772160918469,
+      "lastAccessed": 1772743391668,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/src/core/wikilinks/parser.ts",
+      "accessCount": 3,
+      "lastAccessed": 1772743713773,
       "type": "file"
     },
     {
-      "path": "gitnexus/package.json",
+      "path": "gitnexus-web/src/components/CodeReferencesPanel.tsx",
       "accessCount": 2,
-      "lastAccessed": 1772159248123,
+      "lastAccessed": 1772740746325,
       "type": "file"
     },
     {
-      "path": ".claude/config.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1772151815985,
+      "path": "gitnexus-web/src/core/ingestion/process-processor.ts",
+      "accessCount": 2,
+      "lastAccessed": 1772740767149,
       "type": "file"
     },
     {
-      "path": "gitnexus-web",
-      "accessCount": 1,
-      "lastAccessed": 1772151988465,
-      "type": "directory"
-    },
-    {
-      "path": "gitnexus/src/core/wiki",
-      "accessCount": 1,
-      "lastAccessed": 1772156626741,
-      "type": "directory"
-    },
-    {
-      "path": "docs/references/notion/gitnexus-codex-todo/gitnexus-hypergraph.md",
-      "accessCount": 1,
-      "lastAccessed": 1772156672595,
+      "path": "gitnexus-web/src/lib/mermaid-generator.ts",
+      "accessCount": 2,
+      "lastAccessed": 1772740767259,
       "type": "file"
     },
     {
-      "path": "docs",
-      "accessCount": 1,
-      "lastAccessed": 1772160674065,
+      "path": "gitnexus-web/src/hooks/useSigma.ts",
+      "accessCount": 2,
+      "lastAccessed": 1772741633839,
       "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/vite.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1772743221720,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/App.tsx",
+      "accessCount": 2,
+      "lastAccessed": 1772743221830,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/tsconfig.app.json",
+      "accessCount": 2,
+      "lastAccessed": 1772743242133,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/core/llm/types.ts",
+      "accessCount": 2,
+      "lastAccessed": 1772743895105,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/core",
+      "accessCount": 1,
+      "lastAccessed": 1772740671130,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/src/core/llm",
+      "accessCount": 1,
+      "lastAccessed": 1772740704035,
+      "type": "directory"
+    },
+    {
+      "path": "gitnexus-web/tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1772741753831,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/tsconfig.node.json",
+      "accessCount": 1,
+      "lastAccessed": 1772741787294,
+      "type": "file"
+    },
+    {
+      "path": "gitnexus-web/src/core/kuzu/schema.ts",
+      "accessCount": 1,
+      "lastAccessed": 1772743221614,
+      "type": "file"
     }
   ],
   "userDirectives": []

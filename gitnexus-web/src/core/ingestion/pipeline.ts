@@ -7,6 +7,9 @@ import { processCalls } from './call-processor';
 import { processHeritage } from './heritage-processor';
 import { processCommunities, CommunityDetectionResult } from './community-processor';
 import { processProcesses, ProcessDetectionResult } from './process-processor';
+import { extractWikilinks } from '../wikilinks/parser';
+import { buildWikilinkRelations, createWikilinkNodeResolver } from './wikilink-processor';
+import { generateId } from '../../lib/utils';
 import { createSymbolTable } from './symbol-table';
 import { createASTCache } from './ast-cache';
 import { PipelineProgress, PipelineResult } from '../../types/pipeline';
@@ -279,8 +282,34 @@ export const runPipelineFromFiles = async (
     });
   });
 
-  
-  // Phase 9: Complete (100%)
+  // Phase 9: Wikilink references (99-100%)
+  onProgress({
+    phase: 'processes',
+    percent: 99,
+    message: 'Building wikilink references...',
+    stats: { filesProcessed: files.length, totalFiles: files.length, nodesCreated: graph.nodeCount },
+  });
+
+  const resolveNodeId = createWikilinkNodeResolver(graph.nodes);
+  const fileNodes = graph.nodes.filter((n) => n.label === 'File');
+  for (const fileNode of fileNodes) {
+    const fileText = fileContents.get(fileNode.properties.filePath) || '';
+    if (!fileText) continue;
+
+    const links = extractWikilinks(fileText);
+    if (links.length === 0) continue;
+
+    const relations = buildWikilinkRelations(fileNode.id, links, resolveNodeId);
+    for (const rel of relations) {
+      if (rel.targetId === fileNode.id) continue;
+      graph.addRelationship({
+        ...rel,
+        id: generateId('REFERENCES', `${rel.sourceId}->${rel.targetId}`),
+      });
+    }
+  }
+
+  // Phase 10: Complete (100%)
   onProgress({
     phase: 'complete',
     percent: 100,

@@ -80,7 +80,7 @@ You are an investigator. For each question:
 
 ## 📊 GRAPH SCHEMA
 Nodes: File, Folder, Function, Class, Interface, Method, Community, Process
-Relations: \`CodeRelation\` with \`type\` property: CONTAINS, DEFINES, IMPORTS, CALLS, EXTENDS, IMPLEMENTS, MEMBER_OF, STEP_IN_PROCESS
+Relations: \`CodeRelation\` with \`type\` property: CONTAINS, DEFINES, IMPORTS, CALLS, EXTENDS, IMPLEMENTS, MEMBER_OF, STEP_IN_PROCESS, REFERENCES
 
 ## 📐 GRAPH SEMANTICS (Important!)
 **Edge Types:**

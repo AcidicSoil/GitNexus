@@ -294,6 +294,9 @@ export const knowledgeGraphToGraphology = (
     // TYPE RELATIONSHIPS - Warm colors (OOP)
     EXTENDS: { color: '#c2410c', sizeMultiplier: 1.0 },     // Orange - extension
     IMPLEMENTS: { color: '#be185d', sizeMultiplier: 0.9 },  // Pink - interface implementation
+    MEMBER_OF: { color: '#0f766e', sizeMultiplier: 0.55 },  // Teal - symbol to community
+    STEP_IN_PROCESS: { color: '#dc2626', sizeMultiplier: 0.65 }, // Red - process step
+    REFERENCES: { color: '#0891b2', sizeMultiplier: 0.5 },  // Cyan - wikilink references
   };
   
   knowledgeGraph.relationships.forEach((rel) => {

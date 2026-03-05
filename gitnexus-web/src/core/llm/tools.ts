@@ -338,7 +338,7 @@ export const createGraphRAGTools = (
         return `${results.length} results:\n${formatted.join('\n')}${truncated}`;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
-        return `Cypher error: ${message}\n\nCheck your query syntax. Node tables: File, Folder, Function, Class, Interface, Method, CodeElement. Relation: CodeRelation with type property (CONTAINS, DEFINES, IMPORTS, CALLS). Example: MATCH (f:File)-[:CodeRelation {type: 'IMPORTS'}]->(g:File) RETURN f, g`;
+        return `Cypher error: ${message}\n\nCheck your query syntax. Node tables: File, Folder, Function, Class, Interface, Method, CodeElement. Relation: CodeRelation with type property (CONTAINS, DEFINES, IMPORTS, CALLS, EXTENDS, IMPLEMENTS, MEMBER_OF, STEP_IN_PROCESS, REFERENCES). Example: MATCH (f:File)-[:CodeRelation {type: 'IMPORTS'}]->(g:File) RETURN f, g`;
       }
     },
     {
@@ -346,7 +346,7 @@ export const createGraphRAGTools = (
       description: `Execute a Cypher query against the code graph. Use for structural queries like finding callers, tracing imports, class inheritance, or custom traversals.
 
 Node tables: File, Folder, Function, Class, Interface, Method, CodeElement
-Relation: CodeRelation (single table with 'type' property: CONTAINS, DEFINES, IMPORTS, CALLS, EXTENDS, IMPLEMENTS)
+Relation: CodeRelation (single table with 'type' property: CONTAINS, DEFINES, IMPORTS, CALLS, EXTENDS, IMPLEMENTS, MEMBER_OF, STEP_IN_PROCESS, REFERENCES)
 
 Example queries:
 - Functions calling a function: MATCH (caller:Function)-[:CodeRelation {type: 'CALLS'}]->(fn:Function {name: 'validate'}) RETURN caller.name, caller.filePath
@@ -1465,12 +1465,14 @@ Direction:
 Output format (compact tabular):
   Type|Name|File:Line|EdgeType|Confidence%
   
-EdgeType: CALLS, IMPORTS, EXTENDS, IMPLEMENTS
+EdgeType: CALLS, IMPORTS, EXTENDS, IMPLEMENTS (default)
+Additional supported types via relationTypes: CONTAINS, DEFINES, MEMBER_OF, STEP_IN_PROCESS, REFERENCES
 Confidence: 100% = certain, <80% = fuzzy match (may be false positive)
 
 relationTypes filter (optional):
 - Default: CALLS, IMPORTS, EXTENDS, IMPLEMENTS (usage-based)
 - Can add CONTAINS, DEFINES for structural analysis
+- Also supports MEMBER_OF, STEP_IN_PROCESS, REFERENCES for community/process/reference impact traces
 
 Additional output sections:
 - Affected processes (with step impact)
@@ -1480,7 +1482,7 @@ Additional output sections:
         target: z.string().describe('Name of the function, class, or file to analyze'),
         direction: z.enum(['upstream', 'downstream']).describe('upstream = what depends on this; downstream = what this depends on'),
         maxDepth: z.number().optional().nullable().describe('Max traversal depth (default: 3, max: 10)'),
-        relationTypes: z.array(z.string()).optional().nullable().describe('Filter by relation types: CALLS, IMPORTS, EXTENDS, IMPLEMENTS, CONTAINS, DEFINES (default: usage-based)'),
+        relationTypes: z.array(z.string()).optional().nullable().describe('Filter by relation types: CALLS, IMPORTS, EXTENDS, IMPLEMENTS, CONTAINS, DEFINES, MEMBER_OF, STEP_IN_PROCESS, REFERENCES (default: usage-based)'),
         includeTests: z.boolean().optional().nullable().describe('Include test files in results (default: false, excludes .test.ts, .spec.ts, __tests__)'),
         minConfidence: z.number().optional().nullable().describe('Minimum edge confidence 0-1 (default: 0.7, excludes fuzzy/inferred matches)'),
       }),

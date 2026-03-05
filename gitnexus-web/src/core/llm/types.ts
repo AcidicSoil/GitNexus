@@ -297,7 +297,7 @@ NODE TABLES:
 
 RELATIONSHIP TABLE:
 CodeRelation - Single table with 'type' property connecting all node tables
-  - type: STRING (values: CONTAINS, DEFINES, IMPORTS, CALLS)
+  - type: STRING (values: CONTAINS, DEFINES, IMPORTS, CALLS, EXTENDS, IMPLEMENTS, MEMBER_OF, STEP_IN_PROCESS, REFERENCES)
 
 Connection patterns:
 - CONTAINS: Folder->Folder, Folder->File

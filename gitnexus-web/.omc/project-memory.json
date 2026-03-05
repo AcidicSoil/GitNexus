@@ -1,0 +1,282 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1772744296095,
+  "projectRoot": "/home/user/projects/temp/ai-apps/GitNexus/gitnexus-web",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "react",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "18.3.1",
+        "category": "frontend"
+      },
+      {
+        "name": "vite",
+        "version": "5.2.0",
+        "category": "build"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "dev": "vite",
+      "build": "tsc -b && vite build",
+      "preview": "vite preview"
+    }
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": "type-based"
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "public",
+      "src"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "api": {
+      "path": "api",
+      "purpose": "API routes",
+      "fileCount": 1,
+      "lastAccessed": 1772744296083,
+      "keyFiles": [
+        "proxy.ts"
+      ]
+    },
+    "dist": {
+      "path": "dist",
+      "purpose": "Distribution/build output",
+      "fileCount": 1,
+      "lastAccessed": 1772744296084,
+      "keyFiles": [
+        "index.html"
+      ]
+    },
+    "public": {
+      "path": "public",
+      "purpose": "Public files",
+      "fileCount": 0,
+      "lastAccessed": 1772744296089,
+      "keyFiles": []
+    },
+    "src": {
+      "path": "src",
+      "purpose": "Source code",
+      "fileCount": 4,
+      "lastAccessed": 1772744296089,
+      "keyFiles": [
+        "App.tsx",
+        "index.css",
+        "main.tsx",
+        "vite-env.d.ts"
+      ]
+    },
+    "dist/assets": {
+      "path": "dist/assets",
+      "purpose": "Static assets",
+      "fileCount": 48,
+      "lastAccessed": 1772744296090,
+      "keyFiles": [
+        "architectureDiagram-4X3Z3J56-XSZm31sW.js",
+        "blockDiagram-MFEFEJY7-BOBnPhmC.js",
+        "c4Diagram-Q5SP5FFD-B0dYOe1l.js"
+      ]
+    },
+    "src/components": {
+      "path": "src/components",
+      "purpose": "UI components",
+      "fileCount": 18,
+      "lastAccessed": 1772744296092,
+      "keyFiles": [
+        "BackendRepoSelector.tsx",
+        "CodeReferencesPanel.tsx",
+        "DropZone.tsx"
+      ]
+    },
+    "src/config": {
+      "path": "src/config",
+      "purpose": "Configuration files",
+      "fileCount": 2,
+      "lastAccessed": 1772744296092,
+      "keyFiles": [
+        "ignore-service.ts",
+        "supported-languages.ts"
+      ]
+    },
+    "src/lib": {
+      "path": "src/lib",
+      "purpose": "Library code",
+      "fileCount": 4,
+      "lastAccessed": 1772744296092,
+      "keyFiles": [
+        "constants.ts",
+        "graph-adapter.ts",
+        "mermaid-generator.ts"
+      ]
+    },
+    "src/services": {
+      "path": "src/services",
+      "purpose": "Business logic services",
+      "fileCount": 3,
+      "lastAccessed": 1772744296092,
+      "keyFiles": [
+        "backend.ts",
+        "git-clone.ts",
+        "zip.ts"
+      ]
+    },
+    "src/types": {
+      "path": "src/types",
+      "purpose": "Type definitions",
+      "fileCount": 2,
+      "lastAccessed": 1772744296092,
+      "keyFiles": [
+        "kuzu-wasm.d.ts",
+        "pipeline.ts"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "src/core/llm/tools.ts",
+      "accessCount": 17,
+      "lastAccessed": 1772746420027,
+      "type": "file"
+    },
+    {
+      "path": "src/core/kuzu/schema.ts",
+      "accessCount": 8,
+      "lastAccessed": 1772746419981,
+      "type": "file"
+    },
+    {
+      "path": "src/core/llm/agent.ts",
+      "accessCount": 6,
+      "lastAccessed": 1772746176407,
+      "type": "file"
+    },
+    {
+      "path": "src/lib/graph-adapter.ts",
+      "accessCount": 5,
+      "lastAccessed": 1772746163176,
+      "type": "file"
+    },
+    {
+      "path": "src/core/llm",
+      "accessCount": 4,
+      "lastAccessed": 1772744403011,
+      "type": "directory"
+    },
+    {
+      "path": "src/core/llm/types.ts",
+      "accessCount": 4,
+      "lastAccessed": 1772746176354,
+      "type": "file"
+    },
+    {
+      "path": "src",
+      "accessCount": 3,
+      "lastAccessed": 1772746186549,
+      "type": "directory"
+    },
+    {
+      "path": "src/core/kuzu",
+      "accessCount": 2,
+      "lastAccessed": 1772746240730,
+      "type": "directory"
+    },
+    {
+      "path": "src/core",
+      "accessCount": 2,
+      "lastAccessed": 1772746240791,
+      "type": "directory"
+    },
+    {
+      "path": "src/core/kuzu/csv-generator.ts",
+      "accessCount": 2,
+      "lastAccessed": 1772746367954,
+      "type": "file"
+    },
+    {
+      "path": "src/lib",
+      "accessCount": 1,
+      "lastAccessed": 1772744316862,
+      "type": "directory"
+    },
+    {
+      "path": "src/core/graph",
+      "accessCount": 1,
+      "lastAccessed": 1772744334441,
+      "type": "directory"
+    },
+    {
+      "path": "src/core/graph/types.ts",
+      "accessCount": 1,
+      "lastAccessed": 1772746228069,
+      "type": "file"
+    },
+    {
+      "path": "src/core/ingestion/wikilink-processor.ts",
+      "accessCount": 1,
+      "lastAccessed": 1772746228170,
+      "type": "file"
+    },
+    {
+      "path": "src/core/ingestion/pipeline.ts",
+      "accessCount": 1,
+      "lastAccessed": 1772746228222,
+      "type": "file"
+    },
+    {
+      "path": "src/core/wikilinks/parser.ts",
+      "accessCount": 1,
+      "lastAccessed": 1772746261982,
+      "type": "file"
+    },
+    {
+      "path": "src/core/kuzu/kuzu-adapter.ts",
+      "accessCount": 1,
+      "lastAccessed": 1772746367891,
+      "type": "directory"
+    }
+  ],
+  "userDirectives": []
+}

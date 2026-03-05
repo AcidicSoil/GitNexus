@@ -1,7 +1,8 @@
 import React from 'react';
 import { Copy, Check } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import ReactMarkdown, { defaultUrlTransform } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { tokenizeWikilinks } from '../core/wikilinks/parser';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { MermaidDiagram } from './MermaidDiagram';
@@ -84,27 +85,21 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     const formatMarkdownForDisplay = (md: string) => {
         // Avoid rewriting inside fenced code blocks.
         const parts = md.split('```');
-        for (let i = 0; i < parts.length; i += 2) {
-            // Pattern 1: File grounding - [[file.ext]]
-            parts[i] = parts[i].replace(
-                /\[\[([a-zA-Z0-9_\-./\\]+\.[a-zA-Z0-9]+(?::\d+(?:[-–]\d+)?)?)\]\]/g,
-                (_m, inner: string) => {
-                    const trimmed = inner.trim();
-                    const href = `code-ref:${encodeURIComponent(trimmed)}`;
-                    return `[${trimmed}](${href})`;
-                }
-            );
 
-            // Pattern 2: Node grounding - [[Type:Name]]
-            parts[i] = parts[i].replace(
-                /\[\[(?:graph:)?(Class|Function|Method|Interface|File|Folder|Variable|Enum|Type|CodeElement):([^\]]+)\]\]/g,
-                (_m, nodeType: string, nodeName: string) => {
-                    const trimmed = `${nodeType}:${nodeName.trim()}`;
-                    const href = `node-ref:${encodeURIComponent(trimmed)}`;
-                    return `[${trimmed}](${href})`;
+        for (let i = 0; i < parts.length; i += 2) {
+            const tokens = tokenizeWikilinks(parts[i]);
+            parts[i] = tokens.map((token) => {
+                if (token.type === 'text') return token.value;
+                if (token.type === 'code-ref') {
+                    const href = `code-ref:${encodeURIComponent(token.raw)}`;
+                    return `[${token.raw}](${href})`;
                 }
-            );
+                const raw = `${token.nodeType}:${token.nodeName}`;
+                const href = `node-ref:${encodeURIComponent(raw)}`;
+                return `[${raw}](${href})`;
+            }).join('');
         }
+
         return parts.join('```');
     };
 
@@ -205,8 +200,7 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                 remarkPlugins={[remarkGfm]}
                 urlTransform={(url) => {
                     if (url.startsWith('code-ref:') || url.startsWith('node-ref:')) return url;
-                    // Default behavior for http/https/etc
-                    return url;
+                    return defaultUrlTransform(url);
                 }}
                 components={markdownComponents}
             >
