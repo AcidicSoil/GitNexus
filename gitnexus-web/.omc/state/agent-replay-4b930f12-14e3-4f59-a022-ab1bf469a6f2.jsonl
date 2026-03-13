@@ -1,4 +1,0 @@
-{"t":0,"agent":"a428a6e","agent_type":"everything-claude-code:code-reviewer","event":"agent_start","parent_mode":"none"}
-{"t":0,"agent":"a428a6e","agent_type":"everything-claude-code:code-reviewer","event":"agent_stop","success":true,"duration_ms":1890371}
-{"t":0,"agent":"abc0b04","agent_type":"unknown","event":"agent_stop","success":true}
-{"t":0,"agent":"a45fce5","agent_type":"unknown","event":"agent_stop","success":true}
